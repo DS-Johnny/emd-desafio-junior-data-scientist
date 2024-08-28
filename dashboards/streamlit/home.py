@@ -12,9 +12,18 @@ import folium
 import streamlit.components.v1 as components
 st.write('Hello World!')
 
-chamado = pd.read_parquet('../../datasets/chamado_treated.parquet')
-bairro = pd.read_csv('../../datasets/bairro_treated.csv')
+#chamado = pd.read_parquet('../../datasets/chamado_treated.parquet')
+#bairro = pd.read_csv('../../datasets/bairro_treated.csv')
+# Caminho para a pasta raiz do projeto
+base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 
+# Caminhos para os arquivos
+parquet_path = os.path.join(base_dir, 'datasets/chamado_treated.parquet')
+csv_path = os.path.join(base_dir, 'datasets/bairro_treated.csv')
+
+# Carregando os arquivos
+chamado = pd.read_parquet(parquet_path)
+bairro = pd.read_csv(csv_path)
 
 
 # Definindo um centroide para os bairros
