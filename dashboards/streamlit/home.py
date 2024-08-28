@@ -27,7 +27,7 @@ bairro = pd.read_csv(csv_path)
 
 # ------------------------------------------------------------------------- BODY
 
-st.write(chamado.head())
+st.write(bairro)
 
 # ----------------------------------------------------------------------------- SIDEBAR
 st.sidebar('Write Home')
