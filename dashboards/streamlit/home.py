@@ -27,7 +27,16 @@ bairro = pd.read_csv(csv_path)
 
 # ------------------------------------------------------------------------- BODY
 
-st.write(bairro)
+st.title('Desafio Técnico - Cientista de Dados Júnior')
+st.markdown('#### Escritório de Dados - Prefeitura da Cidade do Rio de Janeiro')
+
+tab1, tab2, tab3 = st.tabs(['Descrição do desafio', 'O que você vai encontrar nesta aplicação', 'Sobre mim'])
+
+with tab1:
+    st.write("""Este é um desafio técnico para a vaga de Cientista de dados Júnior no campo de soluções de tecnologia e de Governo Digital para a área pública do Rio de Janeiro.
+             Nele serão avaliadas abilidades técnicas como manipulação de dados, análises exploratórias, integração com APIs, Consultas SQL, análise e Visualização de dados.""")
+    
+    
 
 # ----------------------------------------------------------------------------- SIDEBAR
 st.sidebar.write('Write Home')
