@@ -30,4 +30,4 @@ bairro = pd.read_csv(csv_path)
 st.write(bairro)
 
 # ----------------------------------------------------------------------------- SIDEBAR
-st.sidebar('Write Home')
+st.sidebar.write('Write Home')
