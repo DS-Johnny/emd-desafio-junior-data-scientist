@@ -50,20 +50,35 @@ WHERE DATE(c.data_inicio) >= '2022-01-01'
 	AND c.subtipo = 'Perturbação do sossego'
 
 -- 7. Selecione os chamados com esse subtipo que foram abertos durante os eventos contidos na tabela de eventos (Reveillon, Carnaval e Rock in Rio).
-SELECT
+WITH ocup_sem_duplicatas as(
+  SELECT 
+    DISTINCT * 
+  FROM datario.turismo_fluxo_visitantes.rede_hoteleira_ocupacao_eventos
+  )
+  SELECT
 	count(*)
-FROM datario.adm_central_atendimento_1746.chamado c JOIN datario.turismo_fluxo_visitantes.rede_hoteleira_ocupacao_eventos o ON DATE(c.data_inicio) BETWEEN o.data_inicial AND o.data_final
+FROM datario.adm_central_atendimento_1746.chamado c JOIN ocup_sem_duplicatas o ON DATE(c.data_inicio) BETWEEN o.data_inicial AND o.data_final
 WHERE c.subtipo = 'Perturbação do sossego'
 
 -- 8. Quantos chamados desse subtipo foram abertos em cada evento?
+WITH ocup_sem_duplicatas as(
+  SELECT 
+    DISTINCT * 
+  FROM datario.turismo_fluxo_visitantes.rede_hoteleira_ocupacao_eventos
+  )
 SELECT 
     o.evento, 
     COUNT(c.id_chamado) AS total_chamados
-FROM datario.adm_central_atendimento_1746.chamado c JOIN datario.turismo_fluxo_visitantes.rede_hoteleira_ocupacao_eventos o ON DATE(c.data_inicio) BETWEEN o.data_inicial AND o.data_final
+FROM datario.adm_central_atendimento_1746.chamado c JOIN ocup_sem_duplicatas o ON DATE(c.data_inicio) BETWEEN o.data_inicial AND o.data_final
 WHERE  c.subtipo = 'Perturbação do sossego'
 GROUP BY o.evento;
 
 -- 9. Qual evento teve a maior média diária de chamados abertos desse subtipo?
+WITH ocup_sem_duplicatas as(
+  SELECT 
+    DISTINCT * 
+  FROM datario.turismo_fluxo_visitantes.rede_hoteleira_ocupacao_eventos
+  )
 SELECT 
     evento,
     AVG(total_chamados) AS media_diaria_chamados
@@ -72,7 +87,7 @@ FROM
         o.evento,
         DATE(c.data_inicio) AS dia,
         COUNT(c.id_chamado) AS total_chamados
-    FROM datario.adm_central_atendimento_1746.chamado c JOIN datario.turismo_fluxo_visitantes.rede_hoteleira_ocupacao_eventos o ON DATE(c.data_inicio) BETWEEN o.data_inicial AND o.data_final
+    FROM datario.adm_central_atendimento_1746.chamado c JOIN ocup_sem_duplicatas o ON DATE(c.data_inicio) BETWEEN o.data_inicial AND o.data_final
     WHERE c.subtipo = 'Perturbação do sossego'
     GROUP BY o.evento, DATE(c.data_inicio)) AS subquery
 GROUP BY evento;
