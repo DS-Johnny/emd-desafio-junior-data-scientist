@@ -8,6 +8,7 @@ from shapely import wkt
 import folium
 from folium.plugins import FastMarkerCluster
 import streamlit.components.v1 as components
+import plotly.express as px
 
 # para conseguir importar a classe Weather de utils
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__),'..', '..', '..')))
@@ -30,6 +31,7 @@ chamado = pd.merge(chamado, bairro, how='left', on='id_bairro')
 
 
 # ------------------------------------------------------------------------- Sidebar
+# --------------------------------FILTRO DE OUTLIERS 
 outliers = st.sidebar.radio(
     'Outliers',
     ["Com outliers", "Sem outliers", "Somente Outliers"],
@@ -47,12 +49,19 @@ elif outliers == "Sem outliers":
 else:
     chamado = chamado[~((chamado['longitude'] > -43.79547479049324) & (chamado['longitude'] < -43.09690430442521) & (chamado['latitude'] > -23.08290563772194) & (chamado['latitude'] < -22.746032827955112))]
 
+# --------------------------------------------------------- Filtro de tempo
+datas_chamado = chamado['data_inicio'].sort_values(ascending=True)
+data_inicio, data_fim = st.sidebar.select_slider('Selecione o período:', datas_chamado, [datas_chamado.max(), datas_chamado.min()])
+
+chamado = chamado[(chamado['data_inicio'] >= data_inicio) & (chamado['data_inicio'] <= data_fim)]
 
 # ------------------------------------------------------------------------- BODY
 st.title('Análise de chamados do 1746')
-# Filtros de tipo e subtipo
+
+
+# -------------------------------------------- Filtros de Tipo e Subtipo
 tipo_true = st.radio(
-    'Tipo',
+    'Selecione:',
     ["Visualizar todos", "Filtrar por tipo", "Filtrar por subtipo"]
 )
 
@@ -69,22 +78,41 @@ else:
     subtipo = st.selectbox('Subtipo', subtipos)
     chamado = chamado[chamado['subtipo'] == subtipo]
 
+#--------------------------------------------------------------------
 
+st.markdown("---")
+col1, col2, col3 = st.columns(3)
+with col1:
+    st.subheader('Total')
+    qt_chamados = len(chamado)
+    st.metric('Quantidade de chamados', qt_chamados)
+with col2:
+    st.subheader('Sem local')
+    qt_chamados_sem_local = len(chamado[chamado['latitude'].isnull()])
+    st.metric('Quantidade de chamados', qt_chamados_sem_local)
 
+with col3:
+    qt_chamados_fora = len(chamado[~((chamado['longitude'] > -43.79547479049324) & (chamado['longitude'] < -43.09690430442521) & (chamado['latitude'] > -23.08290563772194) & (chamado['latitude'] < -22.746032827955112))]) - qt_chamados_sem_local
+    st.subheader('Fora da região')
+    st.metric('Quantidade de chamados', qt_chamados_fora)
 
 dist_map, analise = st.tabs(['Distribuição geográfica dos chamados', 'Análises'])
 
-# Dashboard para plot do mapa
-chamado_sem_ausentes = chamado[~chamado['latitude'].isnull()]
-#---------------------------- Group by CONTAGEM de CHAMADOS e Reclamações
-chamByBairro = chamado_sem_ausentes.groupby('id_bairro').agg({'id_chamado':'count'})
-chamByBairro = chamByBairro.reset_index()
-reclByBairro = chamado_sem_ausentes.groupby('id_bairro').agg({'reclamacoes':'sum'})
-reclByBairro = reclByBairro.reset_index()
-bairro['QT_chamados'] = chamByBairro['id_chamado']
-bairro['QT_reclamacoes'] = reclByBairro['reclamacoes']
+
 
 with dist_map:
+    # Dashboard para plot do mapa
+    chamado_sem_ausentes = chamado[~chamado['latitude'].isnull()]
+
+
+
+    #---------------------------- Group by CONTAGEM de CHAMADOS e Reclamações
+    chamByBairro = chamado_sem_ausentes.groupby('id_bairro').agg({'id_chamado':'count'})
+    chamByBairro = chamByBairro.reset_index()
+    reclByBairro = chamado_sem_ausentes.groupby('id_bairro').agg({'reclamacoes':'sum'})
+    reclByBairro = reclByBairro.reset_index()
+    bairro['QT_chamados'] = chamByBairro['id_chamado']
+    bairro['QT_reclamacoes'] = reclByBairro['reclamacoes']
 
     # Definindo um centroide para os bairros
     gdf = gpd.GeoDataFrame(bairro)
@@ -112,4 +140,46 @@ with dist_map:
     components.html(html_data, height=600, width=800)
 
 with analise:
-    st.write('Análise')
+    subprefeituras = chamado['subprefeitura'].unique().tolist()
+    subprefeituras.sort()
+    subprefeitura = st.multiselect('Subprefeituras', subprefeituras, default=subprefeituras)
+
+    
+    chamado = chamado[chamado['subprefeitura'].isin(subprefeitura)]
+
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        encerrados = sum(chamado['situacao'] == 'Encerrado')
+        st.metric('Encerrados', encerrados)
+        pct_encerrados = encerrados / len(chamado)
+        text_encerrados = '{:.2f}%'.format(pct_encerrados*100)
+        st.progress(pct_encerrados, text=text_encerrados)
+
+    with col2:
+        n_encerrados = sum(chamado['situacao'] == 'Não Encerrado')
+        st.metric('Não Encerrado', n_encerrados)
+        pct_n_encerrados = n_encerrados / len(chamado)
+        text_n_encerrados = '{:.2f}%'.format(pct_n_encerrados*100)
+        st.progress(pct_n_encerrados, text=text_n_encerrados)
+    
+    with col3:
+        reclamacoes = chamado['reclamacoes'].sum()
+        st.metric('Reclamações', reclamacoes)
+        pct_reclamacoes = reclamacoes / len(chamado)
+        text_reclamacoes = '{:.2f}%'.format(pct_reclamacoes*100)
+        st.progress(pct_reclamacoes, text=text_reclamacoes)
+    
+with st.container():
+    graph, table = st.tabs(['Gráfico', 'Tabela'])
+    chamados_por_sub = chamado.groupby('subprefeitura').agg({'id_chamado':'count'}).reset_index()
+    with graph:    
+        
+        fig = px.histogram(chamados_por_sub, x='subprefeitura', y='id_chamado', title='Volume de chamados por Subprefeitura')
+        st.plotly_chart(fig, use_container_width=True)
+
+    with table:
+        st.table(chamados_por_sub)
+
+    
+
+    
