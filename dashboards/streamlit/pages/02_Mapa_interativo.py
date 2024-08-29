@@ -6,6 +6,7 @@ import pandas as pd
 import geopandas as gpd
 from shapely import wkt
 import folium
+from folium.plugins import FastMarkerCluster
 import streamlit.components.v1 as components
 
 # para conseguir importar a classe Weather de utils
@@ -24,6 +25,8 @@ csv_path = os.path.join(base_dir, 'datasets/bairro_treated.csv')
 # Carregando os arquivos
 chamado = pd.read_parquet(parquet_path)
 bairro = pd.read_csv(csv_path)
+chamado_sem_ausentes = chamado[~chamado['latitude'].isnull()]
+
 
 # ------------------------------------------------------------------------- BODY
 
@@ -39,11 +42,12 @@ gdf['centroid_lon'] = gdf['geometry'].x
 popup_content = ['nome', 'subprefeitura', 'area']
 
 map = folium.Map(location=[-22.8831165538581, -43.42882206268638], tiles="OpenStreetMap", zoom_start=11)
+map.add_child(FastMarkerCluster(chamado_sem_ausentes[['latitude', 'longitude']].values.tolist()))#,icon=folium.Icon(color='red', icon='info-sign'))) # Tentar mudar o ícone futuramente
 
 
 
-gdf.explore(tiles="CartoDB positron", popup=popup_content, tooltip=popup_content, column='area', legend=False, figsize=(5,5),
-            edgecolor='k', m=map, cmap='OrRd').save('map.html')
+gdf.explore(tiles="CartoDB positron", popup=popup_content, tooltip=popup_content, column='subprefeitura', legend=False, figsize=(5,5),
+            edgecolor='k', m=map, cmap='coolwarm').save('map.html')
 
 # Lendo e exibindo o mapa no Streamlit
 with open('map.html', 'r', encoding='utf-8') as file:

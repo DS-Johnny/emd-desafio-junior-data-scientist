@@ -61,7 +61,7 @@ if d:
         popup_content = ['nome', 'subprefeitura', 'temperatura media','clima']
         tooltip_content = ['nome','temperatura media', 'clima']
         map = folium.Map(location=[-22.8831165538581, -43.42882206268638], tiles="OpenStreetMap", zoom_start=11)
-
+        
 
         st.write('Média de temperatura do dia escolhido para cada bairro da Cidade do Rio de Janeiro.')
         gdf.explore(tiles="CartoDB positron", popup=popup_content, tooltip=tooltip_content, column='temperatura media', legend=False, figsize=(5,5),
