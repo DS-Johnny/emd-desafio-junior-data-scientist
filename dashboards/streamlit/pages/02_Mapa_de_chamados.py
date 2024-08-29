@@ -27,7 +27,7 @@ chamado = pd.read_parquet(parquet_path)
 bairro = pd.read_csv(csv_path)
 bairro['id_bairro'] = bairro['id_bairro'].apply(lambda x: str(x))
 chamado = pd.merge(chamado, bairro, how='left', on='id_bairro')
-chamado_sem_ausentes = chamado[~chamado['latitude'].isnull()]
+
 
 # ------------------------------------------------------------------------- Sidebar
 outliers = st.sidebar.radio(
@@ -41,21 +41,41 @@ outliers = st.sidebar.radio(
 )
 
 if outliers == "Com outliers":
-    chamados_map = chamado_sem_ausentes
+    chamado = chamado
 elif outliers == "Sem outliers":
-    chamados_map = chamado_sem_ausentes[(chamado_sem_ausentes['longitude'] > -43.79547479049324) & (chamado_sem_ausentes['longitude'] < -43.09690430442521) & (chamado_sem_ausentes['latitude'] > -23.08290563772194) & (chamado_sem_ausentes['latitude'] < -22.746032827955112)]
+    chamado = chamado[(chamado['longitude'] > -43.79547479049324) & (chamado['longitude'] < -43.09690430442521) & (chamado['latitude'] > -23.08290563772194) & (chamado['latitude'] < -22.746032827955112)]
 else:
-    chamados_map = chamado_sem_ausentes[~((chamado_sem_ausentes['longitude'] > -43.79547479049324) & (chamado_sem_ausentes['longitude'] < -43.09690430442521) & (chamado_sem_ausentes['latitude'] > -23.08290563772194) & (chamado_sem_ausentes['latitude'] < -22.746032827955112))]
+    chamado = chamado[~((chamado['longitude'] > -43.79547479049324) & (chamado['longitude'] < -43.09690430442521) & (chamado['latitude'] > -23.08290563772194) & (chamado['latitude'] < -22.746032827955112))]
 
 
 # ------------------------------------------------------------------------- BODY
 st.title('Análise de chamados do 1746')
+# Filtros de tipo e subtipo
+tipo_true = st.radio(
+    'Tipo',
+    ["Visualizar todos", "Filtrar por tipo", "Filtrar por subtipo"]
+)
+
+if tipo_true == 'Visualizar todos':
+    chamado = chamado
+elif tipo_true == 'Filtrar por tipo':
+    tipos = chamado['tipo'].unique().tolist()
+    tipos.sort()
+    tipo = st.selectbox('Tipo', tipos)
+    chamado = chamado[chamado['tipo'] == tipo]
+else:
+    subtipos = chamado['subtipo'].unique().tolist()
+    subtipos.sort()
+    subtipo = st.selectbox('Subtipo', subtipos)
+    chamado = chamado[chamado['subtipo'] == subtipo]
 
 
 
 
 dist_map, analise = st.tabs(['Distribuição geográfica dos chamados', 'Análises'])
 
+# Dashboard para plot do mapa
+chamado_sem_ausentes = chamado[~chamado['latitude'].isnull()]
 #---------------------------- Group by CONTAGEM de CHAMADOS e Reclamações
 chamByBairro = chamado_sem_ausentes.groupby('id_bairro').agg({'id_chamado':'count'})
 chamByBairro = chamByBairro.reset_index()
@@ -78,7 +98,7 @@ with dist_map:
     popup_content = ['nome', 'subprefeitura', 'QT_chamados']
 
     map = folium.Map(location=[-22.8831165538581, -43.42882206268638], tiles="OpenStreetMap", zoom_start=11)
-    map.add_child(FastMarkerCluster(chamados_map[['latitude', 'longitude']].values.tolist()))#,icon=folium.Icon(color='red', icon='info-sign'))) # Tentar mudar o ícone futuramente
+    map.add_child(FastMarkerCluster(chamado_sem_ausentes[['latitude', 'longitude']].values.tolist()))#,icon=folium.Icon(color='red', icon='info-sign'))) # Tentar mudar o ícone futuramente
 
 
 
