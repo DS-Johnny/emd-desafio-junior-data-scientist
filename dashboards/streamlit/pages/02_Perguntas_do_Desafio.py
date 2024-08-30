@@ -23,14 +23,21 @@ base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__),'..', '..', '.
 # Caminhos para os arquivos
 parquet_path = os.path.join(base_dir, 'datasets/chamado_treated.parquet')
 bairro_path = os.path.join(base_dir, 'datasets/bairro_treated.csv')
-ocup_path = os.path.join(base_dir, 'datasets/ocup_treated.csv')
+ocup_path = os.path.join(base_dir, 'datasets/ocupacao_treated.csv')
 
 # Carregando os arquivos
 chamado = pd.read_parquet(parquet_path)
 bairro = pd.read_csv(bairro_path)
+ocup = pd.read_csv(ocup_path)
 
 bairro['id_bairro'] = bairro['id_bairro'].apply(lambda x: str(x))
 chamado = pd.merge(chamado, bairro, how='left', on='id_bairro')
+
+# Merge chamado + ocup
+
+
+# Faz o join do dataframe cham_bair com o df_explodido
+merged = pd.merge(chamado, ocup, how='left', on='data_inicio') 
 
 
 # ---------------------------------------------------------------------------- SIDEBAR
@@ -66,6 +73,88 @@ with perguntas_datario:
 
         ##### Importante: a tabela de Chamados do 1746 possui mais de 10M de linhas. Evite fazer consultas exploratórias na tabela sem um filtro ou limite de linhas para economizar sua cota no BigQuery!
         """)
+
+    with respostas_d:
+        st.subheader("Análise do dia 01/04/2023")
+        col1, col2 = st.columns(2)
+        abril_01 = chamado[chamado['data_inicio'] == '2023-04-01']
+        with col1:
+            st.write('Total')
+            st.metric('Volume de chamados', len(abril_01))
+
+            st.write('Top 3 Bairros')
+            top3_bairros = abril_01.groupby('nome').agg({'id_chamado':'count'}).sort_values('id_chamado', ascending=False).reset_index().head(3)
+            fig = px.histogram(top3_bairros, x='nome', y='id_chamado')
+            fig.update_layout(
+                xaxis_title='Bairros',
+                yaxis_title='Volume de chamados'
+            )
+            st.plotly_chart(fig, use_container_width=True)
+        
+        with col2:
+            st.write('Tipo de chamado com maior volume')
+            top_tipo = abril_01.groupby('tipo').agg({'id_chamado':'count'}).sort_values('id_chamado', ascending=False).reset_index().head(1)
+            top_tipo.columns = ['Tipo', 'Volume']
+            st.table(top_tipo)
+
+            st.write('Top 3 Subprefeituras')
+            top3_bairros = abril_01.groupby('subprefeitura').agg({'id_chamado':'count'}).sort_values('id_chamado', ascending=False).reset_index().head(3)
+            fig = px.histogram(top3_bairros, x='subprefeitura', y='id_chamado')
+            fig.update_layout(
+                xaxis_title='Subprefeituras',
+                yaxis_title='Volume de chamados'
+            )
+            st.plotly_chart(fig, use_container_width=True)
+
+        st.write(f'Existem {len(abril_01[abril_01['nome'].isnull()])} chamados abertos nesse dia que não foram associados a bairro nem subprefeituras no dia 01/04/2023')
+        st.write("""Isso acontece porque não há informações sobre o local no registro do chamado. 
+                 Não há ID do bairro, nem coordenadas ou qualquer informação que possibilite identificar de onde vem o chamado. 
+                 Levando em consideração que 1º de abril é popularmente conhecido como "Dia da Mentira", esses registros podem ter ocorrido por conta de trotes, 
+                 e os indivíduos que efetuaram a ligação não quiseram fornecer nenhuma informação sobre o local referente ao chamado. 
+                 Outra possibilidade seria erro de tabulação do atendente no momento de registrar o chamado ou algum outro erro sistêmico.""")
+        st.markdown("---")
+        st.subheader('Perturbação do Sossego nos anos de 2022 e 2023')
+        
+        col1, col2 = st.columns(2)
+        eventos = merged[merged['evento'].isin(['Reveillon', 'Carnaval','Rock in Rio'])]
+        eventos = eventos[eventos['subtipo'] == 'Perturbação do sossego']
+        byEvent = eventos[eventos['subtipo'] == 'Perturbação do sossego'].groupby('evento').agg({'id_chamado':'count'}).sort_values('id_chamado', ascending=False).reset_index()
+        byEvent.columns = ['Evento', 'Volume']
+        eventos_media = eventos[eventos['subtipo'] == 'Perturbação do sossego'].groupby(['evento','data_inicio']).agg({'id_chamado':'count'})
+        eventos_media = eventos_media.groupby('evento').agg({'id_chamado':'mean'}).sort_values('id_chamado', ascending=False).reset_index()
+        eventos_media.columns = ['Evento', 'Média']
+        
+        with col1:
+            volume_total = sum(merged['subtipo'] == 'Perturbação do sossego')
+            st.write('Chamados do tipo Perturbação do Sossego')
+            st.metric('Volume total', volume_total)
+
+            st.write('Volume por evento')
+            st.table(byEvent)
+        with col2:
+            
+            st.write('Perturbação do Sossego em eventos')
+            st.metric('Volume total', len(eventos))
+
+            st.write('Média diária de chamados por evento')
+            st.table(eventos_media)
+        
+        media_total = chamado[chamado['subtipo'] == 'Perturbação do sossego'].groupby('data_inicio').agg({'id_chamado':'count'})
+        media_total = media_total.mean().iloc[0]
+        media_rock = eventos_media.iloc[0,1]
+        media_carn = eventos_media.iloc[1,1]
+        media_reve = eventos_media.iloc[2,1]
+        st.markdown("---")
+        st.write('A média diária de chamados do tipo Perturbação do Sossego para todo o período de 01/01/2022 até 31/12/2023 é: {:.2f}'.format(media_total))
+        st.write('O Rock in Rio tem uma média diária de chamados do tipo Perturbação do Sossego é {:.2f} vezes maior que a média diária total dos anos 2022/2023'.format(media_rock/media_total))
+        st.write('A média diária de chamados deste tipo para o carnaval é bem próxima da geral, representa {:.2f}% em comparação com a média diária do período 2022/2023'.format((media_carn/media_total*100)))
+        st.write('Enquanto o Reveillon Possui a menor média diária de chamados, representando {:.2f}% em comparação com a média diária do período de 2022/2023'.format((media_reve/media_total)*100))
+
+        
+
+
+
+
 
 with perguntas_api:
     perguntas_a, respostas_a = st.tabs(['Perguntas', 'Respostas'])
