@@ -1,19 +1,16 @@
 # ---------------------------------------------------------------------------- IMPORTS
 import sys
 import os
+import json
+import requests
 import streamlit as st
 import pandas as pd
-import geopandas as gpd
-from shapely import wkt
-import folium
-from folium.plugins import FastMarkerCluster
-import streamlit.components.v1 as components
 import plotly.express as px
 from utils.utils import Weather
 
 # para conseguir importar a classe Weather de utils
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__),'..', '..', '..')))
-
+wrio = Weather(-22.914469232838528, -43.44618954745923) # Coordenada CENTRO calculada utilizando geopandas
 
 # ---------------------------------------------------------------------------- DADOS
 
@@ -38,6 +35,43 @@ chamado = pd.merge(chamado, bairro, how='left', on='id_bairro')
 
 # Faz o join do dataframe cham_bair com o df_explodido
 merged = pd.merge(chamado, ocup, how='left', on='data_inicio') 
+
+# Dados de feriados
+response = requests.get('https://date.nager.at/api/v3/publicholidays/2024/BR')
+public_holidays = json.loads(response.content)
+holidays = pd.DataFrame(public_holidays)
+
+# dicionário para converter os meses de integer para string em Português
+meses = {
+    1 : 'Janeiro',
+    2 : 'Fevereiro',
+    3 : 'Março',
+    4 : 'Abril',
+    5 : 'Maio',
+    6 : 'Junho',
+    7 : 'Julho',
+    8 : 'Agosto',
+    9 : 'Setembro',
+    10: 'Outubro',
+    11: 'Novembro',
+    12: 'Dezembro'
+}
+# dicionário para converter os dias de integer para string em Português
+dias_semana = {
+    0: "Segunda-feira",
+    1: "Terça-feira",
+    2: "Quarta-feira",
+    3: "Quinta-feira",
+    4: "Sexta-feira",
+    5: "Sábado",
+    6: "Domingo"
+}
+# Novas colunas
+holidays['date'] = pd.to_datetime(holidays['date']) # Converte a coluna date para datetime
+holidays['month'] = holidays['date'].apply(lambda x: x.month).map(meses) # Extrai o mês da coluna date e transcreve para o Português
+holidays['weekday_n'] = holidays['date'].apply(lambda x: x.weekday()) # Extrai o dia da semana da coluna date como um inteiro 
+holidays['weekday'] = holidays['date'].apply(lambda x: x.weekday()).map(dias_semana) # Transcreve o dia da semana em Português
+
 
 
 # ---------------------------------------------------------------------------- SIDEBAR
@@ -145,10 +179,10 @@ with perguntas_datario:
         media_carn = eventos_media.iloc[1,1]
         media_reve = eventos_media.iloc[2,1]
         st.markdown("---")
-        st.write('A média diária de chamados do tipo Perturbação do Sossego para todo o período de 01/01/2022 até 31/12/2023 é: {:.2f}'.format(media_total))
-        st.write('O Rock in Rio tem uma média diária de chamados do tipo Perturbação do Sossego é {:.2f} vezes maior que a média diária total dos anos 2022/2023'.format(media_rock/media_total))
-        st.write('A média diária de chamados deste tipo para o carnaval é bem próxima da geral, representa {:.2f}% em comparação com a média diária do período 2022/2023'.format((media_carn/media_total*100)))
-        st.write('Enquanto o Reveillon Possui a menor média diária de chamados, representando {:.2f}% em comparação com a média diária do período de 2022/2023'.format((media_reve/media_total)*100))
+        st.write('A média diária de chamados do tipo Perturbação do Sossego para todo o período de 01/01/2022 até 31/12/2023 é: {:.1f}'.format(media_total))
+        st.write('O Rock in Rio tem uma média diária de chamados do tipo Perturbação do Sossego é {:.1f} vezes maior que a média diária total dos anos 2022/2023'.format(media_rock/media_total))
+        st.write('A média diária de chamados deste tipo para o carnaval é bem próxima da geral, representa {:.1f}% em comparação com a média diária do período 2022/2023'.format((media_carn/media_total*100)))
+        st.write('Enquanto o Reveillon Possui a menor média diária de chamados, representando {:.1f}% em comparação com a média diária do período de 2022/2023'.format((media_reve/media_total)*100))
 
         
 
@@ -191,4 +225,63 @@ with perguntas_api:
 
         8. **Qual foi o feriado "mais aproveitável" de 2024?**  
         Considere o melhor par tempo e temperatura.
-        """)    
+        """)   
+
+    with respostas_a:
+        col1, col2 = st.columns(2)
+        with col1:
+            st.metric('Feriados em 2024',len(holidays))
+
+            # Utiliza o método forecast de Weather que recebe uma data de inicio e fim de um período de dias para obter os dados de temperatura de cada dia
+            temperaturas_diarias_2024 = wrio.forecast('2024-01-01', '2024-08-01') # retorna um dataframe com data, clima(tempo) e temperatura média
+
+            # Cria novas colunas 
+            temperaturas_diarias_2024['month_n'] = temperaturas_diarias_2024['data'].apply(lambda x: x.month) # Extrai o mês de cada registro como um valor inteiro
+            temperaturas_diarias_2024['month'] = temperaturas_diarias_2024['data'].apply(lambda x: x.month).map(meses) # Transcreve o mês de inteiro para os nomes dos meses em Português
+
+            # Agrupa os dados por mês e agrega a média de temperatura média de cada mês, ordena os meses de Janeiro a Dezembro
+            by_month = temperaturas_diarias_2024.groupby(['month_n','month']).agg({'temperatura media':'mean'}).sort_values('month_n', ascending=True).reset_index()
+
+            st.write('Temperatura média dos meses até agosto')
+            st.table(by_month)
+
+
+        with col2:
+            feriados_na_semana = sum(holidays['weekday_n'].apply(lambda x: True if x in range(0, 5) else False))
+            st.metric('Feriados em dia de semana', feriados_na_semana)
+
+            clima_predominante = temperaturas_diarias_2024.groupby(['month_n','month'])['clima'].apply(lambda x: x.mode()[0]).reset_index()
+            clima_predominante = clima_predominante[['month', 'clima']]
+            st.write('Clima predominante')
+            st.table(clima_predominante)
+
+        st.markdown("""---""")
+
+        holidays['temperatura media'] = holidays[holidays['date'] <= '2024-08-01']['date'].apply(lambda x: wrio.forecast(x.date(), x.date())['temperatura media']) # Temperatura média do dia
+        holidays['clima'] = holidays[holidays['date'] <= '2024-08-01']['date'].apply(lambda x: wrio.forecast(x.date(), x.date())['clima']) # Clima do dia
+        clima_temp_ate_agosto = holidays[holidays['date'] <= '2024-08-01'][['date', 'localName', 'temperatura media', 'clima']] # Filtra o dataframe para exibir apenas o período correto e colunas relevantes para a resposta
+
+        st.write('Clima e a temperatura média em cada feriado de 01/01/2024 a 01/08/2024')
+        st.table(clima_temp_ate_agosto[['localName', 'temperatura media', 'clima']])
+
+        # Função que retorna True para dias parcialmente nublados ou "melhores", e false para todos os outros(dias com garoa, chuva ou nublados são considerados false)
+        def clima_aproveitavel(clima):
+            clima_ok = ['Mainly Sunny', 'Sunny', 'Partly Cloudy']
+            if clima in clima_ok:
+                return True
+            else:
+                return False
+
+        # Cria um novo dataframe que apenas os registros até 01/08/2024
+        holidays_2 = holidays[holidays['date'] <= '2024-08-01']
+
+        # Cria uma nova coluna de booleanos, True caso a temperatura seja maior ou igual a 20ºC e clima considerado aproveitável
+        holidays_2['praia'] = (holidays_2['temperatura media'] >= 20) & (holidays_2['clima'].apply(lambda x: clima_aproveitavel(x)))
+        n_aprov = holidays_2[holidays_2['praia'] == False][['date', 'localName', 'temperatura media', 'clima']] # Filtra somente os feriados não aproveitáveis
+        aprov = holidays_2[holidays_2['praia'] == True][['date', 'localName', 'temperatura media', 'clima']]
+        st.write("Feriados não aproveitáveis")
+        st.table(n_aprov[['localName', 'temperatura media', 'clima']])
+
+        st.write("Feriado mais aproveitável do ano")
+        st.table(aprov[['localName', 'temperatura media', 'clima']])
+
