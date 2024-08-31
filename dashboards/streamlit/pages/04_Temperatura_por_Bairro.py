@@ -14,18 +14,25 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__),'..', '..
 from utils.utils import Weather
 
 # ---------------------------------------------------------------------------- DADOS
+@st.cache_data
+def get_data():
 
-# Caminho para a pasta raiz do projeto para conseguir importar os datasets
-base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__),'..', '..', '..'))
+    # Caminho para a pasta raiz do projeto para conseguir importar os datasets
+    base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__),'..', '..', '..'))
 
-# Caminhos para os arquivos
-parquet_path = os.path.join(base_dir, 'datasets/chamado_treated.parquet')
-csv_path = os.path.join(base_dir, 'datasets/bairro_treated.csv')
+    # Caminhos para os arquivos
+    parquet_path = os.path.join(base_dir, 'datasets/chamado_treated.parquet')
+    csv_path = os.path.join(base_dir, 'datasets/bairro_treated.csv')
 
-# Carregando os arquivos
-chamado = pd.read_parquet(parquet_path)
-bairro = pd.read_csv(csv_path)
-bairro = bairro[['nome', 'subprefeitura', 'geometry_wkt', 'geometry', 'centroid_lat', 'centroid_lon']]
+    # Carregando os arquivos
+    chamado = pd.read_parquet(parquet_path)
+    bairro = pd.read_csv(csv_path)
+    bairro = bairro[['nome', 'subprefeitura', 'geometry_wkt', 'geometry', 'centroid_lat', 'centroid_lon']]
+
+    return chamado, bairro
+
+chamado, bairro = get_data()
+    
 # ------------------------------------------------------------------------- BODY
 
 data_exemplo = datetime.strptime('2024-08-04', '%Y-%m-%d').date()

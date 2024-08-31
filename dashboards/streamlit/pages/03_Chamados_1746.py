@@ -15,30 +15,32 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__),'..', '..
 
 
 # ---------------------------------------------------------------------------- DADOS
+@st.cache_data
+def get_data():
+    # Caminho para a pasta raiz do projeto para conseguir importar os datasets
+    base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__),'..', '..', '..'))
 
-# Caminho para a pasta raiz do projeto para conseguir importar os datasets
-base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__),'..', '..', '..'))
+    # Caminhos para os arquivos
+    parquet_path = os.path.join(base_dir, 'datasets/chamado_treated.parquet')
+    csv_path = os.path.join(base_dir, 'datasets/bairro_treated.csv')
 
-# Caminhos para os arquivos
-parquet_path = os.path.join(base_dir, 'datasets/chamado_treated.parquet')
-csv_path = os.path.join(base_dir, 'datasets/bairro_treated.csv')
+    # Carregando os arquivos
+    chamado = pd.read_parquet(parquet_path)
+    bairro = pd.read_csv(csv_path)
+    bairro['id_bairro'] = bairro['id_bairro'].apply(lambda x: str(x))
+    chamado = pd.merge(chamado, bairro, how='left', on='id_bairro')
+    return bairro, chamado
 
-# Carregando os arquivos
-chamado = pd.read_parquet(parquet_path)
-bairro = pd.read_csv(csv_path)
-bairro['id_bairro'] = bairro['id_bairro'].apply(lambda x: str(x))
-chamado = pd.merge(chamado, bairro, how='left', on='id_bairro')
-
-
+bairro, chamado = get_data()
 # ------------------------------------------------------------------------- Sidebar
 # --------------------------------FILTRO DE OUTLIERS 
 outliers = st.sidebar.radio(
     'Outliers',
     ["Com outliers", "Sem outliers", "Somente Outliers"],
     captions=[
-        "Chamados de fora da região",
+        "Todos os dados",
         "Apenas chamados de dentro da região",
-        "Apenas chamados de fora da região"
+        "Chamados fora da região e sem local"
     ],
 )
 
@@ -96,6 +98,7 @@ with col3:
     st.subheader('Fora da região')
     st.metric('Quantidade de chamados', qt_chamados_fora)
 
+st.write('Chamados que não possuem informação do local não serão plotados no mapa')
 dist_map, analise = st.tabs(['Distribuição geográfica dos chamados', 'Análises'])
 
 
