@@ -48,7 +48,7 @@ chamado = chamado[(chamado['data_inicio'] >= data_inicio) & (chamado['data_inici
 
 # ------------------------------------------------------------------------- BODY
 st.title('Análise de chamados do 1746')
-
+st.write('Dados de 01/01/2022 até 31/12/2023')
 
 # -------------------------------------------- Filtros de Tipo e Subtipo
 tipo_true = st.radio(
@@ -121,7 +121,7 @@ with dist_map:
     map.add_child(FastMarkerCluster(chamado_sem_ausentes[['latitude', 'longitude']].values.tolist()))#,icon=folium.Icon(color='red', icon='info-sign'))) # Tentar mudar o ícone futuramente
 
 
-
+    st.write('Aguarde um momento, os dados estão sendo processados.')
     gdf.explore(tiles="CartoDB positron", popup=popup_content, tooltip=popup_content, column='QT_chamados', legend=False, figsize=(5,5),
                 edgecolor='k', m=map, cmap='OrRd').save('map_chamados.html')
 

@@ -22,10 +22,13 @@ chamado = pd.merge(chamado, bairro, how='left', on='id_bairro')
     
 # ------------------------------------------------------------------------- BODY
 
+st.title("Análise de temperatura e clima por bairro")
+st.write('Escolha uma data para visualizar o mapa de calor.')
+
 data_exemplo = datetime.strptime('2024-08-04', '%Y-%m-%d').date()
 d = st.date_input("Selecione o dia", value=data_exemplo)
 if d:
-    st.write('Aguarde, os dados para esta data estão sendo analisados. Isso pode demorar alguns instantes.')
+    st.write('Aguarde, os dados para esta data estão sendo processados. Isso pode demorar alguns instantes.')
 
     try:
         # Função que vai ser aplicada em cada linha do dataframe
@@ -42,6 +45,7 @@ if d:
         bairro['temperatura media'] = bairro['temperatura media'].apply(lambda x: round(x,2))
         bairro['clima'] = bairro.apply(lambda x: get_clima(x, d), axis=1)
         
+        st.write("Dados coletados da API Open-Meteo Historical Weather. Seu mapa está sendo gerado.")
 
         # Definindo um centroide para os bairros
         gdf = gpd.GeoDataFrame(bairro)
@@ -56,7 +60,6 @@ if d:
         tooltip_content = ['nome','temperatura media', 'clima']
         map = folium.Map(location=[-22.8831165538581, -43.42882206268638], tiles="OpenStreetMap", zoom_start=11)
         
-
         st.write('Média de temperatura do dia escolhido para cada bairro da Cidade do Rio de Janeiro.')
         gdf.explore(tiles="CartoDB positron", popup=popup_content, tooltip=tooltip_content, column='temperatura media', legend=False, figsize=(5,5),
                     edgecolor='k', m=map, cmap='OrRd').save('map_temperatura.html')

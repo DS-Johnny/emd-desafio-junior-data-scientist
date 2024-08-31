@@ -72,6 +72,9 @@ holidays['weekday'] = holidays['date'].apply(lambda x: x.weekday()).map(dias_sem
 
 # ---------------------------------------------------------------------------- BODY
 
+st.title("Solução das perguntas do Desafio")
+st.write('Acesse a guia "Respostas" para visualizar as soluções')
+
 perguntas_datario, perguntas_api = st.tabs(['Perguntas Datario', 'Perguntas API'])
 
 with perguntas_datario:

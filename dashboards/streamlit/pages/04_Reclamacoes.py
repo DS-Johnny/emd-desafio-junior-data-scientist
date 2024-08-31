@@ -25,6 +25,9 @@ chamado = pd.merge(chamado, bairro, how='left', on='id_bairro')
 # ---------------------------------------------------------------------------- SIDEBAR
 
 # ---------------------------------------------------------------------------- BODY
+st.title('Reclamações do 1746')
+st.write('Volume de reclamações dentro do perído de 01/01/2022 até 31/12/2023')
+st.markdown("---")
 
 with st.container():
     col1, col2, col3 = st.columns(3)
