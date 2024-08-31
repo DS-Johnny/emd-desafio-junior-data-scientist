@@ -104,7 +104,7 @@ dist_map, analise = st.tabs(['Distribuição geográfica dos chamados', 'Anális
 
 
 with dist_map:
-    # Dashboard para plot do mapa
+    # dataframe para plot do mapa
     chamado_sem_ausentes = chamado[~chamado['latitude'].isnull()]
 
 
@@ -134,10 +134,10 @@ with dist_map:
 
 
     gdf.explore(tiles="CartoDB positron", popup=popup_content, tooltip=popup_content, column='QT_chamados', legend=False, figsize=(5,5),
-                edgecolor='k', m=map, cmap='OrRd').save('map.html')
+                edgecolor='k', m=map, cmap='OrRd').save('map_chamados.html')
 
     # Lendo e exibindo o mapa no Streamlit
-    with open('map.html', 'r', encoding='utf-8') as file:
+    with open('map_chamados.html', 'r', encoding='utf-8') as file:
         html_data = file.read()
 
     components.html(html_data, height=600, width=800)
