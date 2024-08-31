@@ -15,25 +15,11 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__),'..', '..
 
 
 # ---------------------------------------------------------------------------- DADOS
-@st.cache_data
-def get_data():
-    # Caminho para a pasta raiz do projeto para conseguir importar os datasets
-    base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__),'..', '..', '..'))
+chamado = st.session_state.chamado_data
+bairro = st.session_state.bairro_data
 
-    # Caminhos para os arquivos
-    parquet_path = os.path.join(base_dir, 'datasets/chamado_treated.parquet')
-    csv_path = os.path.join(base_dir, 'datasets/bairro_treated.csv')
-
-    # Carregando os arquivos
-    chamado = pd.read_parquet(parquet_path)
-    bairro = pd.read_csv(csv_path)
-    bairro['id_bairro'] = bairro['id_bairro'].apply(lambda x: str(x))
-    chamado = pd.merge(chamado, bairro, how='left', on='id_bairro')
-    return bairro, chamado
-
-bairro, chamado = get_data()
-
-print(chamado.info())
+bairro['id_bairro'] = bairro['id_bairro'].apply(lambda x: str(x))
+chamado = pd.merge(chamado, bairro, how='left', on='id_bairro')
 
 
 # ---------------------------------------------------------------------------- SIDEBAR

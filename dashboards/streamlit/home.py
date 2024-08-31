@@ -14,16 +14,35 @@ from utils.utils import Weather
 
 # ---------------------------------------------------------------------------- DADOS
 
-# Caminho para a pasta raiz do projeto para conseguir importar os datasets
-base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+# ---------------------------------------------------------------------------- FUNÇÃO PARA CARREGAR DADOS
+def load_data():
+    """Função para carregar e armazenar os dados na sessão."""
+    
+    # Caminho para a pasta raiz do projeto para conseguir importar os datasets
+    base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 
-# Caminhos para os arquivos
-parquet_path = os.path.join(base_dir, 'datasets/chamado_treated.parquet')
-csv_path = os.path.join(base_dir, 'datasets/bairro_treated.csv')
+    # Caminhos para os arquivos
+    parquet_path = os.path.join(base_dir, 'datasets/chamado_treated.parquet')
+    csv_path = os.path.join(base_dir, 'datasets/bairro_treated.csv')
 
-# Carregando os arquivos
-chamado = pd.read_parquet(parquet_path)
-bairro = pd.read_csv(csv_path)
+    # Verifica se os dados já foram carregados
+    if 'chamado_data' not in st.session_state:
+        st.session_state.chamado_data = pd.read_parquet(parquet_path)
+        st.session_state.bairro_data = pd.read_csv(csv_path)
+
+# ---------------------------------------------------------------------------- CARREGAMENTO DOS DADOS
+load_data()
+
+# Agora você pode acessar os dados através de st.session_state
+chamado = st.session_state.chamado_data
+bairro = st.session_state.bairro_data
+
+# Exemplo de uso dos dados
+st.write("Exemplo de dados do arquivo Parquet:")
+st.write(chamado.head())
+
+st.write("Exemplo de dados do arquivo CSV:")
+st.write(bairro.head())
 
 # ------------------------------------------------------------------------- BODY
 

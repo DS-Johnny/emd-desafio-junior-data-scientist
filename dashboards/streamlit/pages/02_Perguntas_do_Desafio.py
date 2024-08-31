@@ -13,37 +13,25 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__),'..', '..
 wrio = Weather(-22.914469232838528, -43.44618954745923) # Coordenada CENTRO calculada utilizando geopandas
 
 # ---------------------------------------------------------------------------- DADOS
+chamado = st.session_state.chamado_data
+bairro = st.session_state.bairro_data
 
-@st.cache_data
-def get_data():
-    # Caminho para a pasta raiz do projeto para conseguir importar os datasets
-    base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__),'..', '..', '..'))
+bairro['id_bairro'] = bairro['id_bairro'].apply(lambda x: str(x))
+chamado = pd.merge(chamado, bairro, how='left', on='id_bairro')
 
-    # Caminhos para os arquivos
-    parquet_path = os.path.join(base_dir, 'datasets/chamado_treated.parquet')
-    bairro_path = os.path.join(base_dir, 'datasets/bairro_treated.csv')
-    ocup_path = os.path.join(base_dir, 'datasets/ocupacao_treated.csv')
 
-    # Carregando os arquivos
-    chamado = pd.read_parquet(parquet_path)
-    bairro = pd.read_csv(bairro_path)
-    ocup = pd.read_csv(ocup_path)
+# Caminho para a pasta raiz do projeto para conseguir importar os datasets
+base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__),'..', '..', '..'))
+ocup_path = os.path.join(base_dir, 'datasets/ocupacao_treated.csv')
+ocup = pd.read_csv(ocup_path)
 
-    bairro['id_bairro'] = bairro['id_bairro'].apply(lambda x: str(x))
-    chamado = pd.merge(chamado, bairro, how='left', on='id_bairro')
+# Faz o join do dataframe cham_bair com o df_explodido
+merged = pd.merge(chamado, ocup, how='left', on='data_inicio') 
 
-    # Faz o join do dataframe cham_bair com o df_explodido
-    merged = pd.merge(chamado, ocup, how='left', on='data_inicio') 
-
-    # Dados de feriados
-    response = requests.get('https://date.nager.at/api/v3/publicholidays/2024/BR')
-    public_holidays = json.loads(response.content)
-    holidays = pd.DataFrame(public_holidays)
-
-    return bairro, chamado, merged, holidays
-
-bairro, chamado, merged, holidays = get_data()
-
+# Dados de feriados
+response = requests.get('https://date.nager.at/api/v3/publicholidays/2024/BR')
+public_holidays = json.loads(response.content)
+holidays = pd.DataFrame(public_holidays)
 
 # dicionário para converter os meses de integer para string em Português
 meses = {
