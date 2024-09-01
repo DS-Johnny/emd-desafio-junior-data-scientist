@@ -74,3 +74,6 @@ Como o dataset de Chamados do 1746 era enorme, fiz uma seleção das variáveis 
 **Quarto Passo:** Nessa fase, foquei em resolver as perguntas do desafio. Criei os arquivos analise_api.ipynb, analise_sql.ipynb e analise_sql.sql para isso.
 
 **Quinto Passo:** Finalmente, comecei a desenvolver a aplicação em Streamlit para apresentar os resultados das análises de uma maneira interativa e fácil de entender.
+
+**Link para a aplicação na nuvem StreamlitShare** - Caso a nuvem esteja com alguma instabilidade, por favor rodar a aplicação conforme as instruções contidas anteriormente neste arquivo.
+- https://govrio.streamlit.app/
