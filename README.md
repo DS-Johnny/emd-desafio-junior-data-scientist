@@ -8,31 +8,32 @@ Este repositório contém as soluções para o desafio técnico da vaga de Cient
 
 A organização do repositório é a seguinte:
 
-├── dashboards                              # Diretório contendo dashboards criados com Streamlit
-│   ├── streamlit                           # Diretório com scripts do Streamlit
-│       ├── pages                           # Páginas da aplicação Streamlit
-│           ├── 02_Perguntas_do_Desafio.py  # Perguntas do desafio implementadas no Streamlit
-│           ├── 03_Chamados_1746.py         # Chamados 1746 visualizados no Streamlit
-│           ├── 04_Reclamacoes.py           # Reclamações visualizadas no Streamlit
-│           ├── 05_Temperatura_por_Bairro.py # Temperatura por bairro no Streamlit
-│       ├── Inicio.py                       # Página inicial da aplicação Streamlit
-│       ├── map_chamados.html               # Mapa de chamados (renderizado em HTML)
-│       ├── map_temperatura.html            # Mapa de temperatura (renderizado em HTML)
-├── requirements.txt                        # Lista de dependências de Python para o projeto
-├── datasets                                # Diretório contendo os datasets utilizados no projeto
-├── govrio                                  # Ambiente virtual Python
-├── utils                                   # Diretório para funções utilitárias
-├── analise_api.ipynb                       # Respostas das questões API utilizando Python
-├── analise_python.ipynb                    # Respostas das questões SQL utilizando Python e Pandas
-├── analise_sql.sql                         # Respostas das questões SQL no BigQuery
-├── api_first_test.ipynb                    # Primeiro teste com a API (notebook de testes iniciais)
-├── datario_EDA.ipynb                       # Análise Exploratória de Dados do datario
-├── Desafio.md                              # Arquivo detalhando o desafio proposto
-├── ETL.ipynb                               # Pipeline de ETL (Extração, Transformação e Carga)
-├── faq.md                                  # Perguntas frequentes sobre o desafio
-├── perguntas_api.md                        # Perguntas sobre APIs a serem respondidas
-├── perguntas_sql.md                        # Perguntas SQL a serem respondidas
-└── README.md                               # Documentação do projeto (este arquivo)
+
+- ├── dashboards                              # Diretório contendo dashboards criados com Streamlit
+- │   ├── streamlit                           # Diretório com scripts do Streamlit
+- │       ├── pages                           # Páginas da aplicação Streamlit
+- │           ├── 02_Perguntas_do_Desafio.py  # Perguntas do desafio implementadas no Streamlit
+- │           ├── 03_Chamados_1746.py         # Chamados 1746 visualizados no Streamlit
+- │           ├── 04_Reclamacoes.py           # Reclamações visualizadas no Streamlit
+- │           ├── 05_Temperatura_por_Bairro.py # Temperatura por bairro no Streamlit
+- │       ├── Inicio.py                       # Página inicial da aplicação Streamlit
+- │       ├── map_chamados.html               # Mapa de chamados (renderizado em HTML)
+- │       ├── map_temperatura.html            # Mapa de temperatura (renderizado em HTML)
+- ├── requirements.txt                        # Lista de dependências de Python para o projeto
+- ├── datasets                                # Diretório contendo os datasets utilizados no projeto
+- ├── govrio                                  # Ambiente virtual Python
+- ├── utils                                   # Diretório para funções utilitárias
+- ├── analise_api.ipynb                       # Respostas das questões API utilizando Python
+- ├── analise_python.ipynb                    # Respostas das questões SQL utilizando Python e Pandas
+- ├── analise_sql.sql                         # Respostas das questões SQL no BigQuery
+- ├── api_first_test.ipynb                    # Primeiro teste com a API (notebook de testes iniciais)
+- ├── datario_EDA.ipynb                       # Análise Exploratória de Dados do datario
+- ├── Desafio.md                              # Arquivo detalhando o desafio proposto
+- ├── ETL.ipynb                               # Pipeline de ETL (Extração, Transformação e Carga)
+- ├── faq.md                                  # Perguntas frequentes sobre o desafio
+- ├── perguntas_api.md                        # Perguntas sobre APIs a serem respondidas
+- ├── perguntas_sql.md                        # Perguntas SQL a serem respondidas
+- └── README.md                               # Documentação do projeto (este arquivo)
 
 ## Tecnologias usadas
 - Python
