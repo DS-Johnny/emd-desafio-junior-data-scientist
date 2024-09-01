@@ -1,68 +1,76 @@
-# Desafio Técnico - Cientista de Dados Júnior
+# DESAFIO TÉCNICO JUNIOR DATA SCIENTIST - ESCRITORIO DE DADOS - RIO DE JANEIRO
 
-## Descrição
+## Objetivo
 
-Bem-vindo ao desafio técnico para a vaga de Cientista de Dados Júnior no campo de soluções de tecnologia e de Governo Digital para área pública no Rio de Janeiro! A **data limite** do seu último commit no repositório é de **01/09/2024 às 23:59 UTC-3**.
+Este repositório contém as soluções para o desafio técnico da vaga de Cientista de Dados Júnior, focado em manipulação de dados, análises exploratórias, integração com APIs, consulta SQL no BigQuery, e visualização de dados. O desafio tem como foco o desenvolvimento de soluções tecnológicas para a área pública no Rio de Janeiro.
 
-### Objetivo
+## Estrutura do Repositório
 
-O objetivo deste desafio é avaliar suas habilidades técnicas em manipulação de dados, análises exploratórias, integração com APIs, consulta SQL no Big Query, análise e visualização de dados.
+A organização do repositório é a seguinte:
 
+├── dashboards                              # Diretório contendo dashboards criados com Streamlit
+│   ├── streamlit                           # Diretório com scripts do Streamlit
+│       ├── pages                           # Páginas da aplicação Streamlit
+│           ├── 02_Perguntas_do_Desafio.py  # Perguntas do desafio implementadas no Streamlit
+│           ├── 03_Chamados_1746.py         # Chamados 1746 visualizados no Streamlit
+│           ├── 04_Reclamacoes.py           # Reclamações visualizadas no Streamlit
+│           ├── 05_Temperatura_por_Bairro.py # Temperatura por bairro no Streamlit
+│       ├── Inicio.py                       # Página inicial da aplicação Streamlit
+│       ├── map_chamados.html               # Mapa de chamados (renderizado em HTML)
+│       ├── map_temperatura.html            # Mapa de temperatura (renderizado em HTML)
+├── requirements.txt                        # Lista de dependências de Python para o projeto
+├── datasets                                # Diretório contendo os datasets utilizados no projeto
+├── govrio                                  # Ambiente virtual Python
+├── utils                                   # Diretório para funções utilitárias
+├── analise_api.ipynb                       # Respostas das questões API utilizando Python
+├── analise_python.ipynb                    # Respostas das questões SQL utilizando Python e Pandas
+├── analise_sql.sql                         # Respostas das questões SQL no BigQuery
+├── api_first_test.ipynb                    # Primeiro teste com a API (notebook de testes iniciais)
+├── datario_EDA.ipynb                       # Análise Exploratória de Dados do datario
+├── Desafio.md                              # Arquivo detalhando o desafio proposto
+├── ETL.ipynb                               # Pipeline de ETL (Extração, Transformação e Carga)
+├── faq.md                                  # Perguntas frequentes sobre o desafio
+├── perguntas_api.md                        # Perguntas sobre APIs a serem respondidas
+├── perguntas_sql.md                        # Perguntas SQL a serem respondidas
+└── README.md                               # Documentação do projeto (este arquivo)
 
-#### Observação
+## Tecnologias usadas
+- Python
+- SQL
+- BigQuery
+- Basedosdados
+- Streamlit
+- Pandas
+- Geopandas
+- Folium
+- matplotlib
 
-É esperado que você possa não ter tido contato prévio com algumas das tecnologias solicitadas no desafio, e isso é intencional. Parte da avaliação consiste em verificar se você é capaz de aprender rapidamente e produzir resultados após estudar as tecnologias por algum tempo. Por essa razão, o desafio tem uma duração de 13 dias, permitindo que você tenha tempo para estudar e aprender antes de enviar suas respostas.
+## Instruções para Execução
 
-### Conjunto de Dados
+1. Clone o repositório:
+-   git clone https://github.com/DS-Johnny/emd-desafio-junior-data-scientist
+2. Dentro do diretório do projeto crie um ambiente virtual e instale as dependências:
+-  python -m venv govrio
+-  govrio\scripts\activate
+-  python -m pip install -r requirements.txt
+3. Execute os notebooks para análises
+4. Para executar a aplicação do relatório Streamlit
+-  python -m streamlit run dashboards/streamlit/Inicio.py
 
-Os conjuntos de dados que serão utilizados neste desafio são:
+## Histórico de Desenvolvimento do Projeto
 
-- **Chamados do 1746:** Dados relacionados a chamados de serviços públicos na cidade do Rio de Janeiro. O caminho da tabela é : `datario.adm_central_atendimento_1746.chamado`
-- **Bairros do Rio de Janeiro:** Dados sobre os bairros da cidade do Rio de Janeiro - RJ. O caminho da tabela é: `datario.dados_mestres.bairro`
-- **Ocupação Hoteleira em Grandes Eventos no Rio**: Dados contendo o período de duração de alguns grandes eventos que ocorreram no Rio de Janeiro em 2022 e 2023 e a taxa de ocupação hoteleira da cidade nesses períodos. O caminho da tabela é: `datario.turismo_fluxo_visitantes.rede_hoteleira_ocupacao_eventos`
+**Primeiro Passo:** Comecei o projeto criando o arquivo first_api_test.ipynb, que basicamente serviu para eu testar e ter meu primeiro contato com as APIs. Foi uma boa introdução para entender como integrar isso no restante do projeto.
 
-### Ferramentas e Recursos
+**Segundo Passo:** Na sequência, criei o datario_Eda.ipynb para fazer uma análise exploratória inicial dos dados. A ideia aqui era entender as variáveis e dimensões do dataset para poder planejar melhor as consultas SQL e as análises que seriam usadas nos dashboards. Durante essa fase, desenvolvi o módulo utils.py, onde criei a classe Weather. Essa classe se conecta à "Open-Meteo Historical Weather API" para puxar dados meteorológicos históricos com base em datas e coordenadas específicas. Basicamente, você passa as coordenadas de latitude e longitude na hora de instanciar a classe, e depois utiliza as datas como argumento no método forecast, que te retorna um dataframe com as colunas: data, temperatura média e clima.
 
-Você precisará de acesso ao Google Cloud Platform (GCP) para utilizar o BigQuery e consultar os dados públicos disponíveis no projeto `datario`. Além disso, vamos utilizar a biblioteca `basedosdados` em Python para acessar os dados do BigQuery.
+Durante essa análise exploratória, notei que o dataset de Chamados do 1746 tinha umas informações geográficas interessantes, como objetos Polygon e Multipolygon, que poderiam ser trabalhados com a biblioteca geopandas para definir o perímetro dos bairros do Rio de Janeiro e fazer umas análises visuais usando mapas. Fiz alguns testes iniciais com as bibliotecas geopandas, folium, shapely e matplotlib.pyplot.
 
-- Tutorial para acessar dados no BigQuery, desde a criação da conta no GCP até consultar os dados utilizando SQL e Python: [Como acessar dados no BigQuery](https://docs.dados.rio/tutoriais/como-acessar-dados/)
+No começo, usei uma coordenada que achei no Google para fazer as requisições da API meteorológica, mas depois percebi que era uma coordenada do estado do Rio, não da cidade. Então, usei a geopandas para identificar a coordenada centróide e a central da cidade, e acabei decidindo pela central, que é basicamente a média das coordenadas limites da cidade. Essas coordenadas limites também foram úteis mais tarde para filtrar os chamados fora da região da cidade na hora de desenvolver a aplicação em Streamlit.
 
-Todas as APIs utilizadas no desafio são públicas e possuem documentações com exemplos.
+Como o dataset de Chamados do 1746 era enorme, fiz uma seleção das variáveis para reduzir o consumo de dados no GCP e puxar só o necessário para responder às perguntas do desafio e outras análises que achei interessantes, como informações geográficas e o volume de reclamações por tipo de chamado. Também criei um banco de dados SQL local para testar e modelar as consultas antes de rodá-las no GCP.
 
-### Perguntas do Desafio
+**Terceiro Passo:** Criei o arquivo ETL.ipynb para fazer a extração dos dados no GCP, tratá-los e gerar arquivos .csv e .parquet. Esses arquivos são usados nas respostas do desafio nos arquivos analise_sql.ipynb e também para desenvolver os dashboards, assim não preciso consumir os dados do GCP toda vez que rodo os scripts.
 
-As perguntas do desafio estão detalhadas nos arquivos `perguntas_sql.md` e `perguntas_api.md`.
+**Quarto Passo:** Nessa fase, foquei em resolver as perguntas do desafio. Criei os arquivos analise_api.ipynb, analise_sql.ipynb e analise_sql.sql para isso.
 
-## Etapas
-
-1. Siga o tutorial acima para criar sua conta no GCP e aprender como utilizar o BigQuery para consultar os dados.
-2. Faça um fork desse repositório.
-3. Utilize SQL para resolver todas as questões contidas no arquivo `perguntas_sql.md` no BigQuery. Salve suas respostas em um arquivo `analise_sql.sql`.
-4. Utilize Python e pandas para resolver todas as questões contidas no arquivo `perguntas_sql.md`. Salve suas respostas em um arquivo `analise_python.py` ou `analise_python.ipynb`. Para acessar os dados do BigQuery no python, siga o tutorial acima e utilize a biblioteca `basedosdados`.
-5. Utilize Python para resolver todas as questões contidas no arquivo `perguntas_api.md`. Salve suas respostas em um arquivo `analise_api.py` ou `analise_api.ipynb`.
-6. Utilize o LookerStudio, Power BI, StreamLit, Tableau ou qualquer outra ferramenta de visualização de sua preferência para criar visualizações informativas dos dados das tabelas e APIs. Suas visualizações não precisam se limitar apenas aos resultados das análises; é encorajado que você explore os dados e crie visualizações interessantes sobre eles.
-7. Faça commits incrementais à medida que trabalha no desafio e, finalmente, faça push do seu código para o seu repositório no GitHub. Seu repositório deve conter um README com todos os passos necessários para rodar seu código e ver a visualização de dados que você criou.
-
-## Avaliação
-
-Você será avaliado em cada uma das categorias abaixo, com seus respectivos pesos:
-
-- **SQL**: peso 1
-- **Python**: peso 2
-- **Visualização de Dados**: peso 1
-
-Uma média ponderada será calculada e os melhores candidatos serão chamados para a etapa de entrevistas. 
-
-**Dica**: procure fazer algo diferente! Devido à grande quantia de candidatos, é possível que uma boa média não seja suficiente para te garantir uma entrevista. Tente se destacar!
-
-## Dúvidas
-
-Se tiver alguma dúvida ou precisar de esclarecimentos adicionais sobre o desafio, entre em contato pelo email escritoriodedados@gmail.com.
-
-Boa sorte e estamos ansiosos para ver suas soluções! 
-
----
-
-**Escritório de Dados**  
-**Prefeitura da Cidade do Rio de Janeiro**
-
+**Quinto Passo:** Finalmente, comecei a desenvolver a aplicação em Streamlit para apresentar os resultados das análises de uma maneira interativa e fácil de entender.
