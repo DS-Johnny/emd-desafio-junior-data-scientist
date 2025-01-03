@@ -34,7 +34,7 @@ load_data()
 st.title('Desafio Técnico - Cientista de Dados Júnior')
 st.markdown('#### Escritório de Dados - Prefeitura da Cidade do Rio de Janeiro')
 
-tab1, tab2, tab3 = st.tabs(['Descrição do desafio', 'O que você vai encontrar nesta aplicação', 'Sobre mim'])
+tab1, tab2 = st.tabs(['Descrição do desafio', 'O que você vai encontrar nesta aplicação'])
 
 with tab1:
     st.write("""
@@ -49,25 +49,4 @@ with tab2:
             Este relatório/dashboard foi desenvolvido para responder às perguntas do desafio e proporcionar uma análise aprofundada dos chamados do serviço 1746 no Rio de Janeiro, com foco na identificação de sua distribuição geográfica.
 
             Nas páginas "Chamados 1746" e "Temperatura por Bairro", você pode explorar mapas interativos que facilitam a visualização desses dados. Devido ao grande volume de dados, pode haver um breve tempo de carregamento para renderização dos mapas.
-            """)
-
-with tab3:
-    st.write("""
-            Olá! Me chamo Johnny, muito prazer.
-            Sou um estudante no último ano de Bacharelado em Ciência de Dados, sempre curioso e dedicado e com facilidade para aprender de forma autodidata. 
-            
-            Tive meu primeiro contato com programação em 2020 e de lá para cá acabei desenvolvendo uma grande paixão pelo mundo dos dados, o que me levou a iniciar o curso de Ciência de dados em 2021 pela UNIVESP.
-            
-            Durante minha jornada tive o prazer de estagiar na empresa Movida - Aluguel de carros, o que contribuiu bastante com minhas abilidades de análise e ETL.
-            Minhas habilidades incluem análise de dados com Python e SQL, além de desenvolver dashboards com Streamlit e Power BI. 
-            No momento, estou me aprofundando nos estudos de machine learning para expandir ainda mais meu conhecimento na área.
-            
-            Também curto bastante o desenvolvimento backend e web e já desenvolvi alguns projetos utilizando Flask.
-            
-            Uma curiosidade sobre mim é que tenho uma paixão pelo mundo náutico e veleiros, o que também me levou a desenvolver um interesse por meteorologia.
-            
-            Meu objetivo é iniciar minha carreira como cientista de dados e adquirir uma experiência sólida na área. Assim que me graduar tenho planos de iniciar uma pós em Engenharia de Machine Learning
-            e outra em Engenharia de Dados.
-            
-            Tenho um grande interesse em trabalhar em projetos na área de meteorologia ou em projetos envolvendo inteligencia artifical.
             """)
